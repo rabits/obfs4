@@ -88,6 +88,20 @@ ServerTransportPlugin obfs4 exec /usr/local/bin/obfs4proxy
    `DataDir/pt_state/obfs4_state.json`.  To ease deployment, the client side
    bridge line is written to `DataDir/pt_state/obfs4_bridgeline.txt`.
 
+ * The ports of client by default choosed from the free ones, but you can specify the port you want
+   to use with additional params:
+
+ * To use on your router with OpenWRT (for ex. `Atheros AR9344`) you can build and pack the binary:
+    ```
+    $ docker run --rm -it -v ${PWD}:/project:z -w /project golang:1.17
+    docker # GOARCH=mips GOMIPS=softfloat go build -ldflags="-s -w" -o obfs4proxy/obfs4proxy ./obfs4proxy`
+    # Get UPX from https://github.com/upx/upx/actions (the latest version 3.96 have a mips bug where the app is running forever)
+    # Unpack UPX zip archive and run:
+    docker # ./upx obfs4proxy/obfs4proxy
+    docker # ls -lh obfs4proxy/obfs4proxy
+    -rwxr-xr-x 1 root root 1.8M Mar  4 05:52 obfs4proxy/obfs4proxy
+    ```
+
 ### Thanks
 
  * Loup Vaillant for motivating me to replace the Elligator implementation

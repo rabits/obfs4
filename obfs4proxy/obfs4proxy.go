@@ -38,6 +38,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"strings"
 	"sync"
 	"syscall"
 
@@ -58,6 +59,7 @@ const (
 
 var (
 	stateDir string
+	clientListen []string
 	termMon  *termMonitor
 )
 
@@ -77,7 +79,7 @@ func clientSetup() (bool, []net.Listener) {
 	// Launch each of the client listeners.
 	var launched bool
 	listeners := make([]net.Listener, 0, len(ptClientInfo.MethodNames))
-	for _, name := range ptClientInfo.MethodNames {
+	for i, name := range ptClientInfo.MethodNames {
 		t := transports.Get(name)
 		if t == nil {
 			_ = pt.CmethodError(name, "no such transport is supported")
@@ -90,7 +92,11 @@ func clientSetup() (bool, []net.Listener) {
 			continue
 		}
 
-		ln, err := net.Listen("tcp", socksAddr)
+		listenAddr := socksAddr
+		if len(clientListen) > i {
+			listenAddr = clientListen[i]
+		}
+		ln, err := net.Listen("tcp", listenAddr)
 		if err != nil {
 			_ = pt.CmethodError(name, err.Error())
 			continue
@@ -315,7 +321,12 @@ func main() {
 	logLevelStr := flag.String("logLevel", "ERROR", "Log level (ERROR/WARN/INFO/DEBUG)")
 	enableLogging := flag.Bool("enableLogging", false, "Log to TOR_PT_STATE_LOCATION/"+obfs4proxyLogFile)
 	unsafeLogging := flag.Bool("unsafeLogging", false, "Disable the address scrubber")
+	clientListenVar := flag.String("clientListen", "", "Comma separated list of client transports listen addresses")
 	flag.Parse()
+
+	if *clientListenVar != "" {
+		clientListen = strings.Split(*clientListenVar, ",")
+	}
 
 	if *showVer {
 		fmt.Printf("%s\n", getVersion()) //nolint:forbidigo
