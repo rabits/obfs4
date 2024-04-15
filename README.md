@@ -89,7 +89,7 @@ ServerTransportPlugin obfs4 exec /usr/local/bin/obfs4proxy
    bridge line is written to `DataDir/pt_state/obfs4_bridgeline.txt`.
 
  * The ports of client by default choosed from the free ones, but you can specify the port you want
-   to use with additional params:
+   to use with additional param: `-clientListen 127.0.0.1:3000`
 
  * To use on your router with OpenWRT (for ex. `Atheros AR9344`) you can build and pack the binary:
     ```
